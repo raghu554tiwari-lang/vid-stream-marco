@@ -77,12 +77,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Video Player" },
-      { name: "description", content: "Stream lectures via the /play.php player." },
-      { property: "og:title", content: "Video Player" },
-      { property: "og:description", content: "Stream lectures via the /play.php player." },
+      { title: "Eduzex-Marco Player" },
+      { name: "description", content: "Stream lectures via ApexLecture Powered by MARCO" },
+      { property: "og:title", content: "Eduzex-Marco Player" },
+      { property: "og:description", content: "Stream lectures via ApexLecture Powered by MARCO" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Eduzex-Marco Player" },
+      { name: "twitter:description", content: "Stream lectures via ApexLecture Powered by MARCO" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/cf21a4f5-228f-415c-bc6c-ce7a3f65b279/id-preview-0d7160fd--e92e9440-9129-4ca3-bdfa-0f193909b5a7.lovable.app-1782898660252.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/cf21a4f5-228f-415c-bc6c-ce7a3f65b279/id-preview-0d7160fd--e92e9440-9129-4ca3-bdfa-0f193909b5a7.lovable.app-1782898660252.png" },
     ],
     links: [
       {
