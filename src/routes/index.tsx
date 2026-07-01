@@ -1,24 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
+      <div className="max-w-lg text-center space-y-4">
+        <h1 className="text-3xl font-bold">Video Player Proxy</h1>
+        <p className="text-muted-foreground">
+          Open a lecture by visiting{" "}
+          <code className="px-1.5 py-0.5 rounded bg-muted text-foreground">/play.php?…</code>{" "}
+          with the same query parameters used on the source site.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Example: <code>/play.php?video_url=…&amp;video_name=…</code>
+        </p>
+      </div>
     </div>
   );
 }
