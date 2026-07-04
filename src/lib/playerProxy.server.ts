@@ -38,9 +38,10 @@ function lockedShell(request: Request, options: LockedPlayerOptions) {
   var frame = document.getElementById('player');
   var notice = document.getElementById('notice');
   var allowedPath = ${safeJson(options.routePath)};
+  var allowedSrc = frame.getAttribute('src');
   var lockedHref = location.href;
   function showNotice(){ notice.style.display='block'; clearTimeout(showNotice.t); showNotice.t=setTimeout(function(){ notice.style.display='none'; }, 2400); }
-  function resetFrame(){ frame.src = allowedPath + allowedSearch; showNotice(); }
+  function resetFrame(){ frame.src = allowedSrc; showNotice(); }
   function inspect(){
     try {
       var u = new URL(frame.contentWindow.location.href);
