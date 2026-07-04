@@ -4,8 +4,6 @@ type LockedPlayerOptions = {
   upstreamPath: string;
 };
 
-const FRAME_FLAG = "__apex_frame";
-
 function htmlAttr(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -34,21 +32,19 @@ function statusPage(title: string, message: string) {
 
 function lockedShell(request: Request, options: LockedPlayerOptions) {
   const url = new URL(request.url);
-  url.searchParams.set(FRAME_FLAG, "1");
   const frameSrc = `${options.routePath}${url.search}`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Player</title><style>html,body,#player{margin:0;padding:0;border:0;width:100%;height:100%;background:#000;overflow:hidden}#notice{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:none;max-width:calc(100% - 32px);border:1px solid #343434;background:#1f1f1f;color:#e5e7eb;border-radius:14px;padding:12px 16px;font:600 14px system-ui,-apple-system,Segoe UI,sans-serif;text-align:center;z-index:5}</style></head><body><iframe id="player" src="${htmlAttr(frameSrc)}" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-orientation-lock" allow="encrypted-media; autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe><div id="notice">Navigation blocked. Player stayed on this page.</div><script>
 (function(){
   var frame = document.getElementById('player');
   var notice = document.getElementById('notice');
   var allowedPath = ${safeJson(options.routePath)};
-  var allowedSearch = new URL(frame.getAttribute('src'), location.origin).search;
   var lockedHref = location.href;
   function showNotice(){ notice.style.display='block'; clearTimeout(showNotice.t); showNotice.t=setTimeout(function(){ notice.style.display='none'; }, 2400); }
   function resetFrame(){ frame.src = allowedPath + allowedSearch; showNotice(); }
   function inspect(){
     try {
       var u = new URL(frame.contentWindow.location.href);
-      if (u.origin !== location.origin || u.pathname !== allowedPath || u.search !== allowedSearch) resetFrame();
+      if (u.origin !== location.origin || u.pathname !== allowedPath) resetFrame();
     } catch (e) { resetFrame(); }
   }
   frame.addEventListener('load', function(){ setTimeout(inspect, 50); });
@@ -131,9 +127,7 @@ function injectLockdown(html: string, upstreamOrigin: string, routePath: string)
 
 async function frameProxy(request: Request, options: LockedPlayerOptions) {
   const incoming = new URL(request.url);
-  const params = new URLSearchParams(incoming.search);
-  params.delete(FRAME_FLAG);
-  const upstreamUrl = `${options.upstreamOrigin}${options.upstreamPath}${params.toString() ? `?${params}` : ""}`;
+  const upstreamUrl = `${options.upstreamOrigin}${options.upstreamPath}${incoming.search}`;
 
   const headers = new Headers();
   const forwarded = ["accept", "accept-language", "range", "user-agent"];
@@ -188,8 +182,7 @@ async function frameProxy(request: Request, options: LockedPlayerOptions) {
 }
 
 export function createLockedPlayerResponse(request: Request, options: LockedPlayerOptions) {
-  const url = new URL(request.url);
-  if (url.searchParams.get(FRAME_FLAG) === "1") {
+  if (request.headers.get("sec-fetch-dest") === "iframe") {
     return frameProxy(request, options);
   }
   return lockedShell(request, options);
