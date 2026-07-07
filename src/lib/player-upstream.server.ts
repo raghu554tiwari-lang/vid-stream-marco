@@ -98,6 +98,17 @@ function rewriteText(body: string, cfg: UpstreamConfig): string {
   // Rewrite protocol-relative //host references too.
   const proto = new RegExp(`//${cfg.host.replace(/\./g, "\\.")}`, "g");
   out = out.replace(proto, cfg.prefix);
+  // Inject pre-hide CSS into <head> so AI button never flashes.
+  if (/<head[^>]*>/i.test(out)) {
+    out = out.replace(/<head[^>]*>/i, (m) => `${m}${HEAD_INJECT}`);
+  } else {
+    out = `${HEAD_INJECT}${out}`;
+  }
+  if (/<\/body>/i.test(out)) {
+    out = out.replace(/<\/body>/i, `${WATERMARK_INJECT}${NAV_LOCK_SCRIPT}</body>`);
+  }
+  return out;
+}
   if (/<\/body>/i.test(out)) {
     out = out.replace(/<\/body>/i, `${WATERMARK_INJECT}${NAV_LOCK_SCRIPT}</body>`);
   }
