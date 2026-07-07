@@ -109,11 +109,6 @@ function rewriteText(body: string, cfg: UpstreamConfig): string {
   }
   return out;
 }
-  if (/<\/body>/i.test(out)) {
-    out = out.replace(/<\/body>/i, `${WATERMARK_INJECT}${NAV_LOCK_SCRIPT}</body>`);
-  }
-  return out;
-}
 
 export async function proxyUpstream(
   request: Request,
