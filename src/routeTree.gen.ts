@@ -13,6 +13,7 @@ import { Route as Play2DotphpRouteImport } from './routes/play2[.]php'
 import { Route as PlayDotphpRouteImport } from './routes/play[.]php'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as XpSplatRouteImport } from './routes/xp/$'
 import { Route as VidcloudSplatRouteImport } from './routes/vidcloud.$'
 import { Route as S2cdnSplatRouteImport } from './routes/s2cdn.$'
 import { Route as ApiBatchesDotjsonRouteImport } from './routes/api/batches[.]json'
@@ -35,6 +36,11 @@ const SplatRoute = SplatRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const XpSplatRoute = XpSplatRouteImport.update({
+  id: '/xp/$',
+  path: '/xp/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VidcloudSplatRoute = VidcloudSplatRouteImport.update({
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/api/batches.json': typeof ApiBatchesDotjsonRoute
   '/s2cdn/$': typeof S2cdnSplatRoute
   '/vidcloud/$': typeof VidcloudSplatRoute
+  '/xp/$': typeof XpSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/api/batches.json': typeof ApiBatchesDotjsonRoute
   '/s2cdn/$': typeof S2cdnSplatRoute
   '/vidcloud/$': typeof VidcloudSplatRoute
+  '/xp/$': typeof XpSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/api/batches.json': typeof ApiBatchesDotjsonRoute
   '/s2cdn/$': typeof S2cdnSplatRoute
   '/vidcloud/$': typeof VidcloudSplatRoute
+  '/xp/$': typeof XpSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/api/batches.json'
     | '/s2cdn/$'
     | '/vidcloud/$'
+    | '/xp/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/api/batches.json'
     | '/s2cdn/$'
     | '/vidcloud/$'
+    | '/xp/$'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/api/batches.json'
     | '/s2cdn/$'
     | '/vidcloud/$'
+    | '/xp/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   ApiBatchesDotjsonRoute: typeof ApiBatchesDotjsonRoute
   S2cdnSplatRoute: typeof S2cdnSplatRoute
   VidcloudSplatRoute: typeof VidcloudSplatRoute
+  XpSplatRoute: typeof XpSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -149,6 +162,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/xp/$': {
+      id: '/xp/$'
+      path: '/xp/$'
+      fullPath: '/xp/$'
+      preLoaderRoute: typeof XpSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vidcloud/$': {
@@ -183,17 +203,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBatchesDotjsonRoute: ApiBatchesDotjsonRoute,
   S2cdnSplatRoute: S2cdnSplatRoute,
   VidcloudSplatRoute: VidcloudSplatRoute,
+  XpSplatRoute: XpSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
