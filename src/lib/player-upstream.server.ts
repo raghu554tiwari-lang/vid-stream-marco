@@ -106,11 +106,12 @@ function rewriteText(body: string, cfg: UpstreamConfig, contentType: string): st
   const isHtml = /text\/html|application\/xhtml\+xml/i.test(contentType);
   if (!isHtml) return out;
 
-  // Inject pre-hide CSS into <head> so AI button never flashes.
+  // Inject xproxy patch + pre-hide CSS as the FIRST head children so they run
+  // before any of the page's own scripts (video-script.js, shaka, etc.).
   if (/<head[^>]*>/i.test(out)) {
-    out = out.replace(/<head[^>]*>/i, (m) => `${m}${HEAD_INJECT}`);
+    out = out.replace(/<head[^>]*>/i, (m) => `${m}${XPROXY_INJECT}${HEAD_INJECT}`);
   } else {
-    out = `${HEAD_INJECT}${out}`;
+    out = `${XPROXY_INJECT}${HEAD_INJECT}${out}`;
   }
   if (/<\/body>/i.test(out)) {
     out = out.replace(/<\/body>/i, `${WATERMARK_INJECT}${NAV_LOCK_SCRIPT}</body>`);
