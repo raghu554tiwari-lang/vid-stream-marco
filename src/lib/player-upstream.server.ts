@@ -89,7 +89,7 @@ const NAV_LOCK_SCRIPT = String.raw`<script>
 })();
 </script>`;
 
-function rewriteText(body: string, cfg: UpstreamConfig): string {
+function rewriteText(body: string, cfg: UpstreamConfig, contentType: string): string {
   const abs = new RegExp(
     `https?://${cfg.host.replace(/\./g, "\\.")}`,
     "g",
@@ -98,6 +98,10 @@ function rewriteText(body: string, cfg: UpstreamConfig): string {
   // Rewrite protocol-relative //host references too.
   const proto = new RegExp(`//${cfg.host.replace(/\./g, "\\.")}`, "g");
   out = out.replace(proto, cfg.prefix);
+
+  const isHtml = /text\/html|application\/xhtml\+xml/i.test(contentType);
+  if (!isHtml) return out;
+
   // Inject pre-hide CSS into <head> so AI button never flashes.
   if (/<head[^>]*>/i.test(out)) {
     out = out.replace(/<head[^>]*>/i, (m) => `${m}${HEAD_INJECT}`);
@@ -193,7 +197,7 @@ export async function proxyUpstream(
 
   if (isText) {
     const body = await upstream.text();
-    return new Response(rewriteText(body, cfg), {
+    return new Response(rewriteText(body, cfg, ct), {
       status: upstream.status,
       headers: respHeaders,
     });
