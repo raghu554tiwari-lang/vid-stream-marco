@@ -15,6 +15,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VidcloudSplatRouteImport } from './routes/vidcloud.$'
 import { Route as S2cdnSplatRouteImport } from './routes/s2cdn.$'
+import { Route as MediaSplatRouteImport } from './routes/media.$'
 import { Route as ApiBatchesDotjsonRouteImport } from './routes/api/batches[.]json'
 
 const Play2DotphpRoute = Play2DotphpRouteImport.update({
@@ -47,6 +48,11 @@ const S2cdnSplatRoute = S2cdnSplatRouteImport.update({
   path: '/s2cdn/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MediaSplatRoute = MediaSplatRouteImport.update({
+  id: '/media/$',
+  path: '/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBatchesDotjsonRoute = ApiBatchesDotjsonRouteImport.update({
   id: '/api/batches.json',
   path: '/api/batches.json',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/play.php': typeof PlayDotphpRoute
   '/play2.php': typeof Play2DotphpRoute
   '/api/batches.json': typeof ApiBatchesDotjsonRoute
+  '/media/$': typeof MediaSplatRoute
   '/s2cdn/$': typeof S2cdnSplatRoute
   '/vidcloud/$': typeof VidcloudSplatRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/play.php': typeof PlayDotphpRoute
   '/play2.php': typeof Play2DotphpRoute
   '/api/batches.json': typeof ApiBatchesDotjsonRoute
+  '/media/$': typeof MediaSplatRoute
   '/s2cdn/$': typeof S2cdnSplatRoute
   '/vidcloud/$': typeof VidcloudSplatRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/play.php': typeof PlayDotphpRoute
   '/play2.php': typeof Play2DotphpRoute
   '/api/batches.json': typeof ApiBatchesDotjsonRoute
+  '/media/$': typeof MediaSplatRoute
   '/s2cdn/$': typeof S2cdnSplatRoute
   '/vidcloud/$': typeof VidcloudSplatRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/play.php'
     | '/play2.php'
     | '/api/batches.json'
+    | '/media/$'
     | '/s2cdn/$'
     | '/vidcloud/$'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/play.php'
     | '/play2.php'
     | '/api/batches.json'
+    | '/media/$'
     | '/s2cdn/$'
     | '/vidcloud/$'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/play.php'
     | '/play2.php'
     | '/api/batches.json'
+    | '/media/$'
     | '/s2cdn/$'
     | '/vidcloud/$'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   PlayDotphpRoute: typeof PlayDotphpRoute
   Play2DotphpRoute: typeof Play2DotphpRoute
   ApiBatchesDotjsonRoute: typeof ApiBatchesDotjsonRoute
+  MediaSplatRoute: typeof MediaSplatRoute
   S2cdnSplatRoute: typeof S2cdnSplatRoute
   VidcloudSplatRoute: typeof VidcloudSplatRoute
 }
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof S2cdnSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/media/$': {
+      id: '/media/$'
+      path: '/media/$'
+      fullPath: '/media/$'
+      preLoaderRoute: typeof MediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/batches.json': {
       id: '/api/batches.json'
       path: '/api/batches.json'
@@ -181,19 +201,10 @@ const rootRouteChildren: RootRouteChildren = {
   PlayDotphpRoute: PlayDotphpRoute,
   Play2DotphpRoute: Play2DotphpRoute,
   ApiBatchesDotjsonRoute: ApiBatchesDotjsonRoute,
+  MediaSplatRoute: MediaSplatRoute,
   S2cdnSplatRoute: S2cdnSplatRoute,
   VidcloudSplatRoute: VidcloudSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

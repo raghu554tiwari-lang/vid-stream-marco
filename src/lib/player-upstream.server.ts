@@ -17,6 +17,8 @@ const HEAD_INJECT = String.raw`<style id="__apex_head">
 :fullscreen #__apex_wm,:-webkit-full-screen #__apex_wm{display:block!important}
 </style>`;
 
+const MEDIA_PROXY_INJECT = String.raw`<script>(function(){try{var hosts={"cloudfront.testwave.cc":1,"d1d34p8vz63oiq.cloudfront.net":1};function map(u){try{var x=new URL(String(u),location.href);if(x.protocol==='https:'&&hosts[x.hostname])return'/media/https/'+x.host+x.pathname+x.search+x.hash;}catch(e){}return null;}if(window.fetch){var nf=window.fetch.bind(window);window.fetch=function(input,init){try{var p=map(input&&input.url?input.url:input);if(p){if(input instanceof Request){input=new Request(p,input);}else{input=p;}}}catch(e){}return nf(input,init);};}if(window.XMLHttpRequest){var open=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(method,url){var args=Array.prototype.slice.call(arguments);var p=map(url);if(p)args[1]=p;return open.apply(this,args);};}}catch(e){console.warn('[media-proxy]',e);}})();</script>`;
+
 const WATERMARK_INJECT = String.raw`<script>(function(){function mount(){if(document.getElementById('__apex_wm'))return;var d=document.createElement('div');d.id='__apex_wm';d.innerHTML='<div class="m">ApexLectures</div><div class="s">Powered by MARCO</div>';(document.body||document.documentElement).appendChild(d);}function reattach(){var el=document.getElementById('__apex_wm');if(!el)return;var fs=document.fullscreenElement||document.webkitFullscreenElement;if(fs){if(el.parentNode!==fs){try{fs.appendChild(el);}catch(e){}}el.style.setProperty('display','block','important');}else{if(el.parentNode!==document.body){try{document.body.appendChild(el);}catch(e){}}el.style.setProperty('display','none','important');}}function killAi(){try{var sels=['[class*="ai-"]','[class*="Ai"]','[class*="AI"]','[class*="assistant" i]','[class*="doubt" i]','[class*="genie" i]','[class*="chatbot" i]','[id*="assistant" i]','[id*="doubt" i]','[id*="genie" i]','[data-ai]','[data-assistant]','[aria-label*="AI" i]','[aria-label*="assistant" i]','[aria-label*="doubt" i]','[title*="AI" i]','[title*="assistant" i]','[title*="doubt" i]'];sels.forEach(function(s){document.querySelectorAll(s).forEach(function(el){el.style.setProperty('display','none','important');});});document.querySelectorAll('button,a,div[role="button"]').forEach(function(el){var t=((el.innerText||el.textContent||'')+' '+(el.getAttribute('aria-label')||'')+' '+(el.getAttribute('title')||'')).toLowerCase();if(/\b(ai|ai\s*assistant|assistant|doubt|genie|chatbot|ask\s*ai)\b/.test(t)){el.style.setProperty('display','none','important');}var img=el.querySelector&&el.querySelector('img');if(img){var alt=(img.getAttribute('alt')||'').toLowerCase();var src=(img.getAttribute('src')||'').toLowerCase();if(/ai|assistant|doubt|genie|avatar|bot/.test(alt+' '+src)){el.style.setProperty('display','none','important');}}});}catch(e){}}killAi();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){mount();reattach();killAi();});}else{mount();reattach();killAi();}document.addEventListener('fullscreenchange',reattach,true);document.addEventListener('webkitfullscreenchange',reattach,true);setInterval(function(){mount();reattach();killAi();},800);})();</script>`;
 
 const NAV_LOCK_SCRIPT = String.raw`<script>
@@ -39,7 +41,7 @@ const NAV_LOCK_SCRIPT = String.raw`<script>
       // Detect known "back to batch" / navigation intent and cancel it.
       var txt = (a.innerText||a.textContent||'').toLowerCase();
       var href = a.getAttribute && a.getAttribute('href') || '';
-      if (/back\s*to\s*batch|go\s*back|home|batch/i.test(txt) || /batch|home|index/i.test(href)) {
+      if (/back\s*to\s*batch|go\s*back|back|home|batch|course|lecture\s*list|classes/i.test(txt) || /batch|home|index|course|classes|subjects|topics/i.test(href)) {
         ev.preventDefault(); ev.stopPropagation();
         return false;
       }
@@ -78,7 +80,9 @@ const NAV_LOCK_SCRIPT = String.raw`<script>
     var kill = function(root){
       root.querySelectorAll && root.querySelectorAll('a,button').forEach(function(el){
         var t = (el.innerText||el.textContent||'').toLowerCase();
-        if (/back\s*to\s*batch|go\s*back/i.test(t)) {
+        var h = (el.getAttribute('href')||'').toLowerCase();
+        if (/back\s*to\s*batch|go\s*back|back|home|batch|course|lecture\s*list|classes/i.test(t) || /batch|home|index|course|classes|subjects|topics/i.test(h)) {
+          if (el.tagName === 'A') el.setAttribute('href', 'javascript:void(0)');
           el.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
         }
       });
@@ -105,9 +109,9 @@ function rewriteText(body: string, cfg: UpstreamConfig, contentType: string): st
   // Inject pre-hide CSS as the FIRST head child so the AI button never flashes,
   // without patching Shaka/fetch/XHR playback requests.
   if (/<head[^>]*>/i.test(out)) {
-    out = out.replace(/<head[^>]*>/i, (m) => `${m}${HEAD_INJECT}`);
+    out = out.replace(/<head[^>]*>/i, (m) => `${m}${HEAD_INJECT}${MEDIA_PROXY_INJECT}`);
   } else {
-    out = `${HEAD_INJECT}${out}`;
+    out = `${HEAD_INJECT}${MEDIA_PROXY_INJECT}${out}`;
   }
   if (/<\/body>/i.test(out)) {
     out = out.replace(/<\/body>/i, `${WATERMARK_INJECT}${NAV_LOCK_SCRIPT}</body>`);
