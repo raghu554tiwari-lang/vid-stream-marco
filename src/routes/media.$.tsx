@@ -7,7 +7,6 @@ const ALLOWED_HOSTS = new Set([
 
 const STREAM_HEADERS = [
   "content-type",
-  "content-length",
   "cache-control",
   "etag",
   "last-modified",
@@ -87,6 +86,16 @@ async function proxyMedia(request: Request, splat: string): Promise<Response> {
   for (const h of STREAM_HEADERS) {
     const value = upstream.headers.get(h);
     if (value) respHeaders.set(h, value);
+  }
+
+  if (target.pathname.endsWith(".mpd")) {
+    const body = await upstream.text();
+    respHeaders.set("content-type", "application/dash+xml; charset=utf-8");
+    respHeaders.delete("content-length");
+    return new Response(body, {
+      status: upstream.status,
+      headers: respHeaders,
+    });
   }
 
   return new Response(upstream.body, {
